@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGIS Kota Bandung - Zaidan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
+    }
+    header {
+      background: linear-gradient(90deg, #4a90e2, #007cf0);
+      padding: 10px 30px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      height: 70px;
+    }
+    header .logo {
+      display: flex;
+      align-items: center;
+    }
+    header .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    header .logo h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover {
+      color: #ffd700;
+    }
+    .hero-section {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 70px;
+    }
+    video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      object-fit: cover;
+    }
+    .overlay {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.4);
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+    .intro {
+      position: relative;
+      z-index: 3;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+    }
+    h1, h2, h3 {
+      margin: 10px 0;
+    }
+    #map-section {
+      padding: 50px 20px;
+      text-align: center;
+      background: #f1f8ff;
+    }
+    #map {
+      height: 500px;
+      background: #ccc;
+      margin: 20px auto;
+      width: 90%;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #data-section {
+      padding: 70px 20px;
+      text-align: center;
+      background: #ffffff;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .column {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+      padding: 20px;
+      flex: 1 1 300px;
+      max-width: 300px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .column:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+    }
+    .data-icon img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #author-section, #footer {
+      padding: 50px 20px;
+      text-align: center;
+    }
+    #footer {
+      background: linear-gradient(90deg, #007cf0, #00dfd8);
+      color: white;
+    }
+    #backToTop {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #007cf0;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 22px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    #backToTop:hover {
+      background: #005bb5;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+        <div class="logo">
+            <img src="assets/logo_kota_bandung.png" alt="Logo Kota Bandung">
+            <h1>WebGIS Kota Bandung</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#hero-section">Home</a></li>
+                <li><a href="#map-section">Map</a></li>
+                <li><a href="#data-section">Data</a></li>
+                <li><a href="#author-section">Author</a></li>
+                <li><a href="#footer">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="hero-section" class="hero-section">
+        <div class="overlay"></div>
+        <video autoplay muted loop playsinline>
+            <source src="assets/13541599_3840_2160_24fps.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="intro">
+            <h1>WebGIS Basis Data Spasial Kota Bandung</h1>
+            <p>Eksplorasi Data Spasial Lebih Mudah dan Interaktif</p>
+        </div>
+    </div>
+
+    <div id="map-section">
+        <h2>Jelajahi Peta Interaktif</h2>
+        <div id="map"></div>
+    </div>
+
+    <div id="data-section">
+        <h2>Data Unggulan</h2>
+        <div class="container">
+            <div class="column">
+                <div class="data-icon">
+                    <img src="assets/jumlah penduduk.png" alt="Jumlah Penduduk">
+                </div>
+                <h3>Jumlah Penduduk</h3>
+                <p>Bandung memiliki populasi sekitar 2,58 juta jiwa pada tahun 2024.</p>
+            </div>
+            <div class="column">
+                <div class="data-icon">
+                    <img src="assets/laju 1.jpg" alt="Laju Pertumbuhan Ekonomi">
+                </div>
+                <h3>Pertumbuhan Ekonomi</h3>
+                <p>Ekonomi Bandung tumbuh 5,07% pada 2023, menandakan stabilitas regional.</p>
+            </div>
+            <div class="column">
+                <div class="data-icon">
+                    <img src="assets/bencana.jpg" alt="Bencana Alam">
+                </div>
+                <h3>Kejadian Bencana</h3>
+                <p>12 kejadian banjir dan longsor tercatat pada awal 2025 di Bandung.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="author-section">
+        <h2>Tentang Pembuat</h2>
+        <img src="assets/WhatsApp Image 2024-09-04 at 20.40.15_a49cd279.jpg" alt="Foto Zaidan" class="profile-picture">
+        <h3>Zaidan Ahmad Fahrizan</h3>
+        <p>Mahasiswa Sains Informasi Geografi di Universitas Pendidikan Indonesia. Memiliki ketertarikan pada GIS, teknologi web, dan pengembangan aplikasi berbasis spasial.</p>
+    </div>
+
+    <div id="footer">
+        <h3>Hubungi Saya</h3>
+        <p>Email: zaidanfahrizan58@gmail.com</p>
+        <p>Phone: +62 813-9533-7725</p>
+    </div>
+
+    <script>
+        var map = L.map('map').setView([-6.9175, 107.6191], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+    
+    </script>
+</body>
+</html>
